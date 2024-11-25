@@ -1,6 +1,8 @@
-# [M5.L2] - Actividad #0: Copiamos tarea pasada
-
 #pgzero
+
+# Edit: reorganizamos comentarios
+
+# [M5.L2] - Actividad #0: Copiamos tarea pasada
 
 WIDTH = 600 # Ancho de la ventana
 HEIGHT = 300 # Altura de la ventana
