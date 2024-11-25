@@ -1,11 +1,17 @@
 #pgzero
 
 """
-# M5.L2 - Actividad #1: "Actualizando la caja"
-# Objetivo: lograr que los obstáculos reaparezcan tras abandonar la ventana
+# M5.L3 - Actividad #3: "Controles"
+# Objetivo: Controlar el movimiento del personaje con el teclado
 
-1º Agregar condicion (if) para la que cuando la caja (o el personaje)
-    se salga de la pantalla (WIDTH), vuelva a su posición inicial
+# NOTA: El ejercicio M5.L2 NO forma parte de la cadena de soluciones
+#       por cambio de assets y para evitar confusiones.
+
+# Paso Nº 1) Agregar un if con DOS condiciones:
+            -> Condicion #1: Que el usuario presione la tecla deseada
+                             (A o flecha izq.) // (D o flecha derecha)
+
+# NOTA: Ajustamos la altura de la caja a 260
 """
 
 WIDTH = 600 # Ancho de la ventana
@@ -16,6 +22,7 @@ FPS = 30 # Número de fotogramas por segundo
 
 #crea un personaje aquí
 personaje = Actor("alien", (50, 240))
+personaje.velocidad = 5 # velocidad (en px) a la que avanza el personaje por cada frame
 
 """ Nota: Si quisieramos facilitar la tarea de "reiniciar"/"resetear"
           la posición del personaje o los obstáculos/enemigos a su estado
@@ -31,7 +38,7 @@ personaje.pos = personaje.posInicial
 """
 
 fondo = Actor("background")
-caja = Actor("box", (WIDTH-50, 240))
+caja = Actor("box", (WIDTH-50, 260)) 
 
 def draw():
     fondo.draw()
@@ -42,10 +49,11 @@ def update(dt): # Podemos traducir "update" como "actualizar", es decir, en ella
     
     # Actualizamos el personaje
 
-    if (personaje.x > (WIDTH - int(personaje.width /2))):
-        personaje.x -= WIDTH
-    else:
-         personaje.x += 5 #Lo muevo a la derecha
+    if (keyboard.right or keyboard.d) and (personaje.x < WIDTH - int(personaje.width/2)):
+        personaje.x += personaje.velocidad
+
+    if (keyboard.left or keyboard.a) and (personaje.x > int(personaje.width/2)):
+        personaje.x -= personaje.velocidad
 
     ########################
     
