@@ -1,18 +1,17 @@
 #pgzero
 
 """
-# M5.L3 - Actividad #4: "Función animate()"
-# Objetivo: Demostrar los distintos tipos de animación
+# M5.L3 - Actividad #5: "Salto"
+# Objetivo: Agregar la lógica necesaria para implementar un salto
 
-Nota: Nuevamente hay cambio de assets - NO compartir código y sólo explicar y exponer
+Nota: Revertimos los cambios por assets // opcional: dejar o eliminar la función anim como referencia
 
-Cambios:
-1º Actor fondo imagen de "background" a "bg"
-2º Desactivar caja: (creación, draw y update)
-----
-3º Agregar varible que controla la animación
-4º Agregar función de animaciones
-5º Presentar función on_key_down()
+1º Revertimos los cambios por assets
+2º vamos a crear las variables necesarias para el sistema de salto: COOLDOWN_SALTO y timer_salto
+3º Agregamos como variable global timer_salto en updatey en on_key_down
+4º Comentamos el código de anim en on_key_down
+5º Agregamos la lógica de control de salto (en on_key_down)
+6º Agregamos un indicador de salto en draw()
 """
 
 WIDTH = 600 # Ancho de la ventana
@@ -38,6 +37,8 @@ personaje.posInicial = personaje.pos # almacenamos la posición inicial
 personaje.pos = personaje.posInicial
 """
 anim = 1 # variable temporal para demostrar las animaciones
+COOLDOWN_SALTO = 0.6 # tiempo de recarga habilidad salto (en segundos)
+timer_salto = 0 # tiempo que debe pasar (en segundos) antes de que nuestro personaje pueda saltar nuevamente
 
 def animar(op):
     if op == 1:
@@ -49,29 +50,33 @@ def animar(op):
     else:
         animate(personaje, tween="bounce_start_end", duration = 2, x= 35, y = HEIGHT-45)
 
-
-
-fondo = Actor("bg")
-#caja = Actor("box", (WIDTH-50, 260)) 
+fondo = Actor("background")
+caja = Actor("box", (WIDTH-50, 260)) 
 
 def draw():
     fondo.draw()
     personaje.draw()
-    #caja.draw()
+    caja.draw()
+
+    if (timer_salto <= 0):
+        screen.draw.text("¡LISTO!", midleft=(20,20), color = (0, 255, 0), fontsize=24)
+    else:
+        screen.draw.text(str(timer_salto), midleft=(20,20), color = "red", fontsize=24)    
+
     
 def update(dt): # Podemos traducir "update" como "actualizar", es decir, en ella contendremos el código que produzca cambios en nuestro juego
-    
-    # Actualizamos el personaje
 
-    if (keyboard.right or keyboard.d) and (personaje.x < WIDTH - int(personaje.width/2)):
-        personaje.x += personaje.velocidad
+    global timer_salto
 
-    if (keyboard.left or keyboard.a) and (personaje.x > int(personaje.width/2)):
-        personaje.x -= personaje.velocidad
+    #######################
+    # CAMBIOS AUTOMATICOS #
+    #######################
+
+    timer_salto -= dt
 
     ########################
-    """
-    # Actualizamos la caja
+    
+    # Actualizamos la caja - Migrar a función
 
     # Rotación
     if caja.angle < 360:
@@ -84,21 +89,41 @@ def update(dt): # Podemos traducir "update" como "actualizar", es decir, en ella
         caja.x += WIDTH
     else:
         caja.x -= 5 # mover la caja 5 px a la izquierda en cada frame
-    """
+
+    ################
+    # LEER TECLADO #
+    ################
+    
+    # Movimiento del personaje
+
+    if (keyboard.right or keyboard.d) and (personaje.x < WIDTH - int(personaje.width/2)):
+        personaje.x += personaje.velocidad
+
+    if (keyboard.left or keyboard.a) and (personaje.x > int(personaje.width/2)):
+        personaje.x -= personaje.velocidad
+
 
 #####################
 
 def on_key_down(key): # Esta función se activa al presionar una tecla
     # https://pygame-zero.readthedocs.io/en/stable/hooks.html?highlight=on_key_down#on_key_down
     
-    global anim
+    global anim, timer_salto
     
+    """
     if (keyboard.space): #Si pulso la barra espaciadora
         animar(anim)     # Activo la animación actual
         anim += 1
         # actualizo el número de animación actual
         if anim >= 5:
             anim = 1
+    """
+
+    if (keyboard.space or keyboard.w or keyboard.up) and (timer_salto <= 0) and (personaje.y > int(personaje.height / 2)):
+        timer_salto = COOLDOWN_SALTO
+        personaje.y -= personaje.height
+        animate(personaje, tween="bounce_end", duration = 2, y=240)
+    
     
     # para cerrar el juego
     if (keyboard.q):
