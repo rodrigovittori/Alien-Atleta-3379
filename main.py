@@ -1,17 +1,18 @@
 #pgzero
 
 """
-# M5.L3 - Actividad #3: "Controles"
-# Objetivo: Controlar el movimiento del personaje con el teclado
+# M5.L3 - Actividad #4: "Función animate()"
+# Objetivo: Demostrar los distintos tipos de animación
 
-# NOTA: El ejercicio M5.L2 NO forma parte de la cadena de soluciones
-#       por cambio de assets y para evitar confusiones.
+Nota: Nuevamente hay cambio de assets - NO compartir código y sólo explicar y exponer
 
-# Paso Nº 1) Agregar un if con DOS condiciones:
-            -> Condicion #1: Que el usuario presione la tecla deseada
-                             (A o flecha izq.) // (D o flecha derecha)
-
-# NOTA: Ajustamos la altura de la caja a 260
+Cambios:
+1º Actor fondo imagen de "background" a "bg"
+2º Desactivar caja: (creación, draw y update)
+----
+3º Agregar varible que controla la animación
+4º Agregar función de animaciones
+5º Presentar función on_key_down()
 """
 
 WIDTH = 600 # Ancho de la ventana
@@ -36,14 +37,27 @@ personaje.posInicial = personaje.pos # almacenamos la posición inicial
 
 personaje.pos = personaje.posInicial
 """
+anim = 1 # variable temporal para demostrar las animaciones
 
-fondo = Actor("background")
-caja = Actor("box", (WIDTH-50, 260)) 
+def animar(op):
+    if op == 1:
+        animate(personaje, tween="linear", duration=2, x = WIDTH-35, y = HEIGHT-45)
+    elif (op == 2):
+        animate(personaje, tween="bounce_start_end", duration=2, x = 35, y = 45)
+    elif (op == 3):
+        animate(personaje, tween="accel_decel", duration = 2, x= WIDTH - 35, y = HEIGHT-45)
+    else:
+        animate(personaje, tween="bounce_start_end", duration = 2, x= 35, y = HEIGHT-45)
+
+
+
+fondo = Actor("bg")
+#caja = Actor("box", (WIDTH-50, 260)) 
 
 def draw():
     fondo.draw()
     personaje.draw()
-    caja.draw()
+    #caja.draw()
     
 def update(dt): # Podemos traducir "update" como "actualizar", es decir, en ella contendremos el código que produzca cambios en nuestro juego
     
@@ -56,7 +70,7 @@ def update(dt): # Podemos traducir "update" como "actualizar", es decir, en ella
         personaje.x -= personaje.velocidad
 
     ########################
-    
+    """
     # Actualizamos la caja
 
     # Rotación
@@ -70,7 +84,22 @@ def update(dt): # Podemos traducir "update" como "actualizar", es decir, en ella
         caja.x += WIDTH
     else:
         caja.x -= 5 # mover la caja 5 px a la izquierda en cada frame
+    """
 
+#####################
+
+def on_key_down(key): # Esta función se activa al presionar una tecla
+    # https://pygame-zero.readthedocs.io/en/stable/hooks.html?highlight=on_key_down#on_key_down
+    
+    global anim
+    
+    if (keyboard.space): #Si pulso la barra espaciadora
+        animar(anim)     # Activo la animación actual
+        anim += 1
+        # actualizo el número de animación actual
+        if anim >= 5:
+            anim = 1
+    
     # para cerrar el juego
-    if keyboard.q:
+    if (keyboard.q):
         exit()
