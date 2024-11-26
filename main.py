@@ -1,16 +1,15 @@
 #pgzero
 
 """
-# M5.L3 - Actividad #7: "Cambiando sprites"
-# Objetivo: Agregar la lógica necesaria para que el sprite del personaje cambie según las acciones del jugador
+# M5.L2 - Actividades Extra
+# Objetivo: Agregar la lógica para que nuestro personaje pueda agacharse
 
-Nota: La tarea 6 se cumple con el código de la actividad #5
+Nota: La primer tarea extra ("Controles mejorados") ya la cumple nuestro código anterior
 
-1º: Crear variable para almacenar la imágen que vamos a asignar al actor en cada frame.
-2º: Agregamos  en update como variable global la variable nva_imagen
-3º: Asignamos un sprite por defecto al iniciar update (en la vble nva_imageb)
-4º: Post-input actualizamos el sprite del personaje para que sea la imágen almacenada en nuestra variable
-
+1º Agregar check para cuando se presione la tecla "s" o la flecha hacia abajo
+2º Modificar la altura del personaje
+3º Cambiar el sprite del personaje
+4º crear un atributo "timer_agachado"
 """
 
 WIDTH = 600 # Ancho de la ventana
@@ -35,6 +34,8 @@ personaje.posInicial = personaje.pos # almacenamos la posición inicial
 
 personaje.pos = personaje.posInicial
 """
+personaje.timer_agachado = 0.0 # Tiempo restante (en segundos) antes de poner de pie al personaje
+
 anim = 1 # variable temporal para demostrar las animaciones
 COOLDOWN_SALTO = 0.6 # tiempo de recarga habilidad salto (en segundos)
 timer_salto = 0 # tiempo que debe pasar (en segundos) antes de que nuestro personaje pueda saltar nuevamente
@@ -74,7 +75,11 @@ def update(dt): # Podemos traducir "update" como "actualizar", es decir, en ella
 
     timer_salto -= dt
     nva_imagen = "alien" # Si el personaje NO se mueve, mostraremos esta imágen
+    personaje.timer_agachado -= dt
 
+    if (personaje.timer_agachado <= 0):
+        personaje.y = 240
+    
     ########################
     
     # Actualizamos la caja - Migrar a función
@@ -104,6 +109,11 @@ def update(dt): # Podemos traducir "update" como "actualizar", es decir, en ella
     if (keyboard.left or keyboard.a) and (personaje.x > int(personaje.width/2)):
         personaje.x -= personaje.velocidad
         nva_imagen = "left"
+
+    if (keyboard.down or keyboard.s):
+        personaje.y = 260
+        nva_imagen = "duck"
+        personaje.timer_agachado = 0.1
 
     ### POST INPUT ###
 
