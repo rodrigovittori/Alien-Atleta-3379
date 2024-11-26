@@ -1,17 +1,16 @@
 #pgzero
 
 """
-# M5.L3 - Actividad #5: "Salto"
-# Objetivo: Agregar la lógica necesaria para implementar un salto
+# M5.L3 - Actividad #7: "Cambiando sprites"
+# Objetivo: Agregar la lógica necesaria para que el sprite del personaje cambie según las acciones del jugador
 
-Nota: Revertimos los cambios por assets // opcional: dejar o eliminar la función anim como referencia
+Nota: La tarea 6 se cumple con el código de la actividad #5
 
-1º Revertimos los cambios por assets
-2º vamos a crear las variables necesarias para el sistema de salto: COOLDOWN_SALTO y timer_salto
-3º Agregamos como variable global timer_salto en updatey en on_key_down
-4º Comentamos el código de anim en on_key_down
-5º Agregamos la lógica de control de salto (en on_key_down)
-6º Agregamos un indicador de salto en draw()
+1º: Crear variable para almacenar la imágen que vamos a asignar al actor en cada frame.
+2º: Agregamos  en update como variable global la variable nva_imagen
+3º: Asignamos un sprite por defecto al iniciar update (en la vble nva_imageb)
+4º: Post-input actualizamos el sprite del personaje para que sea la imágen almacenada en nuestra variable
+
 """
 
 WIDTH = 600 # Ancho de la ventana
@@ -39,6 +38,7 @@ personaje.pos = personaje.posInicial
 anim = 1 # variable temporal para demostrar las animaciones
 COOLDOWN_SALTO = 0.6 # tiempo de recarga habilidad salto (en segundos)
 timer_salto = 0 # tiempo que debe pasar (en segundos) antes de que nuestro personaje pueda saltar nuevamente
+nva_imagen = "alien" # "alien": quieto / "left": mov. izq. / "right" : mov. dcha.
 
 def animar(op):
     if op == 1:
@@ -66,13 +66,14 @@ def draw():
     
 def update(dt): # Podemos traducir "update" como "actualizar", es decir, en ella contendremos el código que produzca cambios en nuestro juego
 
-    global timer_salto
+    global timer_salto, nva_imagen
 
     #######################
     # CAMBIOS AUTOMATICOS #
     #######################
 
     timer_salto -= dt
+    nva_imagen = "alien" # Si el personaje NO se mueve, mostraremos esta imágen
 
     ########################
     
@@ -98,10 +99,15 @@ def update(dt): # Podemos traducir "update" como "actualizar", es decir, en ella
 
     if (keyboard.right or keyboard.d) and (personaje.x < WIDTH - int(personaje.width/2)):
         personaje.x += personaje.velocidad
+        nva_imagen = "right"
 
     if (keyboard.left or keyboard.a) and (personaje.x > int(personaje.width/2)):
         personaje.x -= personaje.velocidad
+        nva_imagen = "left"
 
+    ### POST INPUT ###
+
+    personaje.image = nva_imagen # Actualizamos el sprite del personaje
 
 #####################
 
