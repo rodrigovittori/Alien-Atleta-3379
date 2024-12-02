@@ -1,15 +1,16 @@
 #pgzero
 
 """
-# M5.L2 - Actividades Extra
-# Objetivo: Agregar la lógica para que nuestro personaje pueda agacharse
+# [M5.L3] - Actividad #1: "Método Colliderect"
+# Objetivo: Cambiar el sprite del personaje cuando éste entre en colisión con la caja
 
-Nota: La primer tarea extra ("Controles mejorados") ya la cumple nuestro código anterior
+1º Agregar check -> if alien.colliderect(caja)
+    -> alien.image = 'hurt'
 
-1º Agregar check para cuando se presione la tecla "s" o la flecha hacia abajo
-2º Modificar la altura del personaje
-3º Cambiar el sprite del personaje
-4º crear un atributo "timer_agachado"
+-> Agregamos bloque de colisiones
+
+Fix: corregimos error al reposicionar el personaje tras agacharse
+
 """
 
 WIDTH = 600 # Ancho de la ventana
@@ -35,6 +36,7 @@ personaje.posInicial = personaje.pos # almacenamos la posición inicial
 personaje.pos = personaje.posInicial
 """
 personaje.timer_agachado = 0.0 # Tiempo restante (en segundos) antes de poner de pie al personaje
+personaje.esta_agachado = False
 
 anim = 1 # variable temporal para demostrar las animaciones
 COOLDOWN_SALTO = 0.6 # tiempo de recarga habilidad salto (en segundos)
@@ -77,8 +79,9 @@ def update(dt): # Podemos traducir "update" como "actualizar", es decir, en ella
     nva_imagen = "alien" # Si el personaje NO se mueve, mostraremos esta imágen
     personaje.timer_agachado -= dt
 
-    if (personaje.timer_agachado <= 0):
+    if ((personaje.timer_agachado <= 0) and (personaje.esta_agachado)): 
         personaje.y = 240
+        personaje.esta_agachado = False
     
     ########################
     
@@ -114,7 +117,19 @@ def update(dt): # Podemos traducir "update" como "actualizar", es decir, en ella
         personaje.y = 260
         nva_imagen = "duck"
         personaje.timer_agachado = 0.1
+        personaje.esta_agachado = True
 
+    ##############
+    # COLISIONES #
+    ##############
+
+    # To-Do: migrar a función
+
+    if (personaje.colliderect(caja)):
+        if (nva_imagen != "hurt"):
+            nva_imagen = "hurt"
+    
+    
     ### POST INPUT ###
 
     personaje.image = nva_imagen # Actualizamos el sprite del personaje
@@ -139,7 +154,6 @@ def on_key_down(key): # Esta función se activa al presionar una tecla
         timer_salto = COOLDOWN_SALTO
         personaje.y -= personaje.height
         animate(personaje, tween="bounce_end", duration = 2, y=240)
-    
     
     # para cerrar el juego
     if (keyboard.q):
