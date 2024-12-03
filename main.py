@@ -1,17 +1,19 @@
 #pgzero
 
 """
-# [M5.L3] - Actividad #3: "Game Over"
-# Objetivo: Implementar condiciones de derrota, ventana de fin de juego y una condición para reiniciar el juego
+# [M5.L3] - Actividad #5: "Puntuación"
+# Objetivo: Implementar un sistema de puntuación que registre la cant. de enemigos esquivados
 
-1º Crear actor cartel_game_over
-2º Creamos una variable llamada "game_over" que comprueba si la partida ha terminado
-3º En caso de colisión game_over debe ser verdadero
-4º Modificamos nuestro draw() para mostrar el mensaje de fin de juego y prompt para reiniciar en caso de perder
-5º Modificamos update() para que en caso de game_over no sigan moviéndose los obstáculos
-6º Agregamos condición para reiniciar el juego al presionar [Enter]
+Nota: La actividad # 4 ya estaba resuelta por el código de nuestra actividad #3
 
-Nota: eliminamos el +50 y 150 al resetear los enemigos... ¿agregar distancia entre caja y abeja?
+1º Creamos una variable que almacene nuestra puntuación
+2º Modifico el draw() para que muestre la puntuación
+3º Modifico el reset para que reinicie nuestra puntuación
+4º Aumentaremos la puntuación cada vez que un enemigo haya abandonado la pantalla
+
+
+Nota: distancia spawn abeja aumentada a WIDTH + 350; box.y cambiado 265, velocidad del personaje a 7
+-> agregar aumento de velocidad de los enemigos al resetearse
 
 """
 
@@ -23,7 +25,7 @@ FPS = 30 # Número de fotogramas por segundo
 
 #crea un personaje aquí
 personaje = Actor("alien", (50, 240))
-personaje.velocidad = 5 # velocidad (en px) a la que avanza el personaje por cada frame
+personaje.velocidad = 7 # velocidad (en px) a la que avanza el personaje por cada frame
 
 """ Nota: Si quisieramos facilitar la tarea de "reiniciar"/"resetear"
           la posición del personaje o los obstáculos/enemigos a su estado
@@ -45,8 +47,8 @@ personaje.esta_agachado = False
 
 fondo = Actor("background")
 cartel_game_over = Actor("GO")
-caja  = Actor("box", (WIDTH-50, 260)) 
-abeja = Actor("bee", (WIDTH + 150, 150))
+caja  = Actor("box", (WIDTH-50, 265)) 
+abeja = Actor("bee", (WIDTH + 350, 150))
 
 # Variables
 anim = 1 # variable temporal para demostrar las animaciones
@@ -54,6 +56,7 @@ COOLDOWN_SALTO = 0.6 # tiempo de recarga habilidad salto (en segundos)
 timer_salto = 0 # tiempo que debe pasar (en segundos) antes de que nuestro personaje pueda saltar nuevamente
 nva_imagen = "alien" # "alien": quieto / "left": mov. izq. / "right" : mov. dcha.
 game_over = False
+puntuacion = 0 # Cantidad de enemigos esquivados
 
 def animar(op):
     if op == 1:
@@ -72,8 +75,9 @@ def draw():
     if (game_over):
         fondo.draw()
         cartel_game_over.draw()
-        # To-Do: Agregar puntuación final más adelante
-        screen.draw.text("Presiona [Enter] para reiniciar", center= (int(WIDTH/2), 2* int(HEIGHT/3)), color = "white", fontsize = 32)
+        # Nota: modificamos la altura del otro mensaje para mostrar más info:
+        screen.draw.text(("Enemigos esquivados: " + str(puntuacion)), center= (int(WIDTH/2), 2* int(HEIGHT/3)), color = "yellow", fontsize = 24)
+        screen.draw.text("Presiona [Enter] para reiniciar", center= (int(WIDTH/2), 4* int(HEIGHT/5)), color = "white", fontsize = 32)
 
     else:
         fondo.draw()
@@ -86,10 +90,12 @@ def draw():
         else:
             screen.draw.text(str(timer_salto), midleft=(20,20), color = "red", fontsize=24)    
 
+        screen.draw.text(("Enemigos esquivados: " + str(puntuacion)), midright=(WIDTH-20, 20), color ="black", background="white", fontsize=24)
+
     
 def update(dt): # Podemos traducir "update" como "actualizar", es decir, en ella contendremos el código que produzca cambios en nuestro juego
 
-    global timer_salto, nva_imagen, game_over
+    global timer_salto, nva_imagen, game_over, puntuacion
 
     if (game_over):
         # En caso de game_over
@@ -102,13 +108,14 @@ def update(dt): # Podemos traducir "update" como "actualizar", es decir, en ella
             # To-do: Migrar a funcion
             
             game_over = False
+            puntuacion = 0
             personaje.pos = (50, 240)
             personaje.esta_agachado = False
             nva_imagen = 'alien'
             timer_salto = 0
-            caja.pos = (WIDTH + 50, 260)
+            caja.pos = (WIDTH + 50, 265)
             caja.angle = 0
-            abeja.pos = (WIDTH + 150, 150)
+            abeja.pos = (WIDTH + 350, 150)
 
     else:
         # Si NO es game_over...
@@ -137,6 +144,7 @@ def update(dt): # Podemos traducir "update" como "actualizar", es decir, en ella
     
         # Posición
         if (caja.x < (int(caja.width/2))):
+            puntuacion += 1
             caja.x += WIDTH
         else:
             caja.x -= 5 # mover la caja 5 px a la izquierda en cada frame
@@ -147,6 +155,7 @@ def update(dt): # Podemos traducir "update" como "actualizar", es decir, en ella
     
         # Posición
         if (abeja.x < (int(abeja.width/2))):
+            puntuacion += 1
             abeja.x += WIDTH
         else:
             abeja.x -= 5 # mover la caja 5 px a la izquierda en cada frame
