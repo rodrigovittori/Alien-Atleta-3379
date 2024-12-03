@@ -1,16 +1,17 @@
 #pgzero
 
 """
-# [M5.L3] - Actividad #2: "Colisión con una abeja"
-# Objetivo: Agregar lógica de colisión para la abeja
+# [M5.L3] - Actividad #3: "Game Over"
+# Objetivo: Implementar condiciones de derrota, ventana de fin de juego y una condición para reiniciar el juego
 
-NOTA: En el programa han eliminado la actividad donde creábamos la abeja, así que toca crearla en éste ejercicio.
+1º Crear actor cartel_game_over
+2º Creamos una variable llamada "game_over" que comprueba si la partida ha terminado
+3º En caso de colisión game_over debe ser verdadero
+4º Modificamos nuestro draw() para mostrar el mensaje de fin de juego y prompt para reiniciar en caso de perder
+5º Modificamos update() para que en caso de game_over no sigan moviéndose los obstáculos
+6º Agregamos condición para reiniciar el juego al presionar [Enter]
 
-1º Crear actor abeja
-2º La agregamos en nuestro draw()
-3º Agregamos los controles de movimiento automático para la abeja
-    Nota: agregarlos 50 y 150 al "reset" de posición de la caja y la abeja
-4º Agregamos la condición de colliderect() con un "or"
+Nota: eliminamos el +50 y 150 al resetear los enemigos... ¿agregar distancia entre caja y abeja?
 
 """
 
@@ -43,6 +44,7 @@ personaje.esta_agachado = False
 # Otros Actores:
 
 fondo = Actor("background")
+cartel_game_over = Actor("GO")
 caja  = Actor("box", (WIDTH-50, 260)) 
 abeja = Actor("bee", (WIDTH + 150, 150))
 
@@ -51,6 +53,7 @@ anim = 1 # variable temporal para demostrar las animaciones
 COOLDOWN_SALTO = 0.6 # tiempo de recarga habilidad salto (en segundos)
 timer_salto = 0 # tiempo que debe pasar (en segundos) antes de que nuestro personaje pueda saltar nuevamente
 nva_imagen = "alien" # "alien": quieto / "left": mov. izq. / "right" : mov. dcha.
+game_over = False
 
 def animar(op):
     if op == 1:
@@ -65,93 +68,124 @@ def animar(op):
 
 
 def draw():
-    fondo.draw()
-    personaje.draw()
-    caja.draw()
-    abeja.draw()
 
-    if (timer_salto <= 0):
-        screen.draw.text("¡LISTO!", midleft=(20,20), color = (0, 255, 0), fontsize=24)
+    if (game_over):
+        fondo.draw()
+        cartel_game_over.draw()
+        # To-Do: Agregar puntuación final más adelante
+        screen.draw.text("Presiona [Enter] para reiniciar", center= (int(WIDTH/2), 2* int(HEIGHT/3)), color = "white", fontsize = 32)
+
     else:
-        screen.draw.text(str(timer_salto), midleft=(20,20), color = "red", fontsize=24)    
+        fondo.draw()
+        personaje.draw()
+        caja.draw()
+        abeja.draw()
+    
+        if (timer_salto <= 0):
+            screen.draw.text("¡LISTO!", midleft=(20,20), color = (0, 255, 0), fontsize=24)
+        else:
+            screen.draw.text(str(timer_salto), midleft=(20,20), color = "red", fontsize=24)    
 
     
 def update(dt): # Podemos traducir "update" como "actualizar", es decir, en ella contendremos el código que produzca cambios en nuestro juego
 
-    global timer_salto, nva_imagen
+    global timer_salto, nva_imagen, game_over
 
-    #######################
-    # CAMBIOS AUTOMATICOS #
-    #######################
-
-    timer_salto -= dt
-    nva_imagen = "alien" # Si el personaje NO se mueve, mostraremos esta imágen
-    personaje.timer_agachado -= dt
-
-    if ((personaje.timer_agachado <= 0) and (personaje.esta_agachado)): 
-        personaje.y = 240
-        personaje.esta_agachado = False
+    if (game_over):
+        # En caso de game_over
+        if (keyboard.enter):
+        
+            ########################
+            # GAME OVER - RESETEAR #
+            ########################
     
-    ########################
-    
-    # Actualizamos la caja - Migrar a función
+            # To-do: Migrar a funcion
+            
+            game_over = False
+            personaje.pos = (50, 240)
+            personaje.esta_agachado = False
+            nva_imagen = 'alien'
+            timer_salto = 0
+            caja.pos = (WIDTH + 50, 260)
+            caja.angle = 0
+            abeja.pos = (WIDTH + 150, 150)
 
-    # Rotación
-    if caja.angle < 360:
-        caja.angle = caja.angle + 5
     else:
-        caja.angle = caja.angle - 360 + 5
-
-    # Posición
-    if (caja.x < (int(caja.width/2))):
-        caja.x += WIDTH + 50
-    else:
-        caja.x -= 5 # mover la caja 5 px a la izquierda en cada frame
-
-    # Actualizamos la abeja - Migrar a función
-
-    # To-Do: agregar "zig-zagueo" de la abeja
-
-    # Posición
-    if (abeja.x < (int(abeja.width/2))):
-        abeja.x += WIDTH + 150
-    else:
-        abeja.x -= 5 # mover la caja 5 px a la izquierda en cada frame
-
-    ################
-    # LEER TECLADO #
-    ################
+        # Si NO es game_over...
+        
+        #######################
+        # CAMBIOS AUTOMATICOS #
+        #######################
     
-    # Movimiento del personaje
-
-    if (keyboard.right or keyboard.d) and (personaje.x < WIDTH - int(personaje.width/2)):
-        personaje.x += personaje.velocidad
-        nva_imagen = "right"
-
-    if (keyboard.left or keyboard.a) and (personaje.x > int(personaje.width/2)):
-        personaje.x -= personaje.velocidad
-        nva_imagen = "left"
-
-    if (keyboard.down or keyboard.s):
-        personaje.y = 260
-        nva_imagen = "duck"
-        personaje.timer_agachado = 0.1
-        personaje.esta_agachado = True
-
-    ##############
-    # COLISIONES #
-    ##############
-
-    # To-Do: migrar a función
-
-    if (personaje.colliderect(caja) or personaje.colliderect(abeja)):
-        if (nva_imagen != "hurt"):
-            nva_imagen = "hurt"
+        timer_salto -= dt
+        nva_imagen = "alien" # Si el personaje NO se mueve, mostraremos esta imágen
+        personaje.timer_agachado -= dt
     
+        if ((personaje.timer_agachado <= 0) and (personaje.esta_agachado)): 
+            personaje.y = 240
+            personaje.esta_agachado = False
+        
+        ########################
+        
+        # Actualizamos la caja - Migrar a función
     
-    ### POST INPUT ###
-
-    personaje.image = nva_imagen # Actualizamos el sprite del personaje
+        # Rotación
+        if caja.angle < 360:
+            caja.angle = caja.angle + 5
+        else:
+            caja.angle = caja.angle - 360 + 5
+    
+        # Posición
+        if (caja.x < (int(caja.width/2))):
+            caja.x += WIDTH
+        else:
+            caja.x -= 5 # mover la caja 5 px a la izquierda en cada frame
+    
+        # Actualizamos la abeja - Migrar a función
+    
+        # To-Do: agregar "zig-zagueo" de la abeja
+    
+        # Posición
+        if (abeja.x < (int(abeja.width/2))):
+            abeja.x += WIDTH
+        else:
+            abeja.x -= 5 # mover la caja 5 px a la izquierda en cada frame
+    
+        ################
+        # LEER TECLADO #
+        ################
+        
+        # Movimiento del personaje
+    
+        if (keyboard.right or keyboard.d) and (personaje.x < WIDTH - int(personaje.width/2)):
+            personaje.x += personaje.velocidad
+            nva_imagen = "right"
+    
+        if (keyboard.left or keyboard.a) and (personaje.x > int(personaje.width/2)):
+            personaje.x -= personaje.velocidad
+            nva_imagen = "left"
+    
+        if (keyboard.down or keyboard.s):
+            personaje.y = 260
+            nva_imagen = "duck"
+            personaje.timer_agachado = 0.1
+            personaje.esta_agachado = True
+    
+        ##############
+        # COLISIONES #
+        ##############
+    
+        # To-Do: migrar a función
+    
+        if (personaje.colliderect(caja) or personaje.colliderect(abeja)):
+            if (nva_imagen != "hurt"):
+                nva_imagen = "hurt"
+                game_over = True
+        
+        
+        ### POST INPUT ###
+    
+        personaje.image = nva_imagen # Actualizamos el sprite del personaje
 
 #####################
 
