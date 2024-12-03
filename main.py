@@ -1,15 +1,16 @@
 #pgzero
 
 """
-# [M5.L3] - Actividad #1: "Método Colliderect"
-# Objetivo: Cambiar el sprite del personaje cuando éste entre en colisión con la caja
+# [M5.L3] - Actividad #2: "Colisión con una abeja"
+# Objetivo: Agregar lógica de colisión para la abeja
 
-1º Agregar check -> if alien.colliderect(caja)
-    -> alien.image = 'hurt'
+NOTA: En el programa han eliminado la actividad donde creábamos la abeja, así que toca crearla en éste ejercicio.
 
--> Agregamos bloque de colisiones
-
-Fix: corregimos error al reposicionar el personaje tras agacharse
+1º Crear actor abeja
+2º La agregamos en nuestro draw()
+3º Agregamos los controles de movimiento automático para la abeja
+    Nota: agregarlos 50 y 150 al "reset" de posición de la caja y la abeja
+4º Agregamos la condición de colliderect() con un "or"
 
 """
 
@@ -38,6 +39,14 @@ personaje.pos = personaje.posInicial
 personaje.timer_agachado = 0.0 # Tiempo restante (en segundos) antes de poner de pie al personaje
 personaje.esta_agachado = False
 
+
+# Otros Actores:
+
+fondo = Actor("background")
+caja  = Actor("box", (WIDTH-50, 260)) 
+abeja = Actor("bee", (WIDTH + 150, 150))
+
+# Variables
 anim = 1 # variable temporal para demostrar las animaciones
 COOLDOWN_SALTO = 0.6 # tiempo de recarga habilidad salto (en segundos)
 timer_salto = 0 # tiempo que debe pasar (en segundos) antes de que nuestro personaje pueda saltar nuevamente
@@ -53,13 +62,13 @@ def animar(op):
     else:
         animate(personaje, tween="bounce_start_end", duration = 2, x= 35, y = HEIGHT-45)
 
-fondo = Actor("background")
-caja = Actor("box", (WIDTH-50, 260)) 
+
 
 def draw():
     fondo.draw()
     personaje.draw()
     caja.draw()
+    abeja.draw()
 
     if (timer_salto <= 0):
         screen.draw.text("¡LISTO!", midleft=(20,20), color = (0, 255, 0), fontsize=24)
@@ -95,9 +104,19 @@ def update(dt): # Podemos traducir "update" como "actualizar", es decir, en ella
 
     # Posición
     if (caja.x < (int(caja.width/2))):
-        caja.x += WIDTH
+        caja.x += WIDTH + 50
     else:
         caja.x -= 5 # mover la caja 5 px a la izquierda en cada frame
+
+    # Actualizamos la abeja - Migrar a función
+
+    # To-Do: agregar "zig-zagueo" de la abeja
+
+    # Posición
+    if (abeja.x < (int(abeja.width/2))):
+        abeja.x += WIDTH + 150
+    else:
+        abeja.x -= 5 # mover la caja 5 px a la izquierda en cada frame
 
     ################
     # LEER TECLADO #
@@ -125,7 +144,7 @@ def update(dt): # Podemos traducir "update" como "actualizar", es decir, en ella
 
     # To-Do: migrar a función
 
-    if (personaje.colliderect(caja)):
+    if (personaje.colliderect(caja) or personaje.colliderect(abeja)):
         if (nva_imagen != "hurt"):
             nva_imagen = "hurt"
     
