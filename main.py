@@ -1,19 +1,20 @@
 #pgzero
 
 """
-# [M5.L3] - Actividad #5: "Puntuación"
-# Objetivo: Implementar un sistema de puntuación que registre la cant. de enemigos esquivados
+# [M5.L3] - Actividad #7 (Extra): "Dividir a los enemigos"
+# Objetivo: En la pantalla de Game Over mostrar un mensaje que cambie
+            según el tipo de enemigo/obstáculo que nos venció
 
-Nota: La actividad # 4 ya estaba resuelta por el código de nuestra actividad #3
+1º Creamos una variable que alamacene el tipo de colisión
+2º Modifico el draw() para que muestre el mensaje según la colisión
 
-1º Creamos una variable que almacene nuestra puntuación
-2º Modifico el draw() para que muestre la puntuación
-3º Modifico el reset para que reinicie nuestra puntuación
-4º Aumentaremos la puntuación cada vez que un enemigo haya abandonado la pantalla
+Nota: Como la clase siguiente se enfoca en funciones, crearemos una función
+      que devuelva el texto personalizado
 
+3º Modifico el reset para que reinicie las variables de texto y tipo de colisión
 
-Nota: distancia spawn abeja aumentada a WIDTH + 350; box.y cambiado 265, velocidad del personaje a 7
--> agregar aumento de velocidad de los enemigos al resetearse
+Nota 2: Esta tarea no cuenta con el sprite "hurt", por lo que
+        deshabilitamos esa parte del código
 
 """
 
@@ -56,6 +57,7 @@ COOLDOWN_SALTO = 0.6 # tiempo de recarga habilidad salto (en segundos)
 timer_salto = 0 # tiempo que debe pasar (en segundos) antes de que nuestro personaje pueda saltar nuevamente
 nva_imagen = "alien" # "alien": quieto / "left": mov. izq. / "right" : mov. dcha.
 game_over = False
+texto_colision = ""
 puntuacion = 0 # Cantidad de enemigos esquivados
 
 def animar(op):
@@ -68,7 +70,17 @@ def animar(op):
     else:
         animate(personaje, tween="bounce_start_end", duration = 2, x= 35, y = HEIGHT-45)
 
+def actualizar_texto_colision(tipo_colision):
 
+    texto_colision = ""
+    
+    if (tipo_colision == 1): # CAJA
+        texto_colision = "¡Entrega letal!"
+
+    elif (tipo_colision == 2): # ABEJA
+        texto_colision = "¡Eres alérgico a las abejas!"
+
+    return texto_colision
 
 def draw():
 
@@ -78,6 +90,8 @@ def draw():
         # Nota: modificamos la altura del otro mensaje para mostrar más info:
         screen.draw.text(("Enemigos esquivados: " + str(puntuacion)), center= (int(WIDTH/2), 2* int(HEIGHT/3)), color = "yellow", fontsize = 24)
         screen.draw.text("Presiona [Enter] para reiniciar", center= (int(WIDTH/2), 4* int(HEIGHT/5)), color = "white", fontsize = 32)
+        
+        screen.draw.text(texto_colision, center= (int(WIDTH/2), int(HEIGHT/5)), color = "red", background = "black", fontsize = 24)
 
     else:
         fondo.draw()
@@ -95,7 +109,7 @@ def draw():
     
 def update(dt): # Podemos traducir "update" como "actualizar", es decir, en ella contendremos el código que produzca cambios en nuestro juego
 
-    global timer_salto, nva_imagen, game_over, puntuacion
+    global timer_salto, nva_imagen, game_over, puntuacion, texto_colision
 
     if (game_over):
         # En caso de game_over
@@ -116,6 +130,7 @@ def update(dt): # Podemos traducir "update" como "actualizar", es decir, en ella
             caja.pos = (WIDTH + 50, 265)
             caja.angle = 0
             abeja.pos = (WIDTH + 350, 150)
+            texto_colision = ""
 
     else:
         # Si NO es game_over...
@@ -123,7 +138,7 @@ def update(dt): # Podemos traducir "update" como "actualizar", es decir, en ella
         #######################
         # CAMBIOS AUTOMATICOS #
         #######################
-    
+
         timer_salto -= dt
         nva_imagen = "alien" # Si el personaje NO se mueve, mostraremos esta imágen
         personaje.timer_agachado -= dt
@@ -186,10 +201,17 @@ def update(dt): # Podemos traducir "update" como "actualizar", es decir, en ella
     
         # To-Do: migrar a función
     
-        if (personaje.colliderect(caja) or personaje.colliderect(abeja)):
-            if (nva_imagen != "hurt"):
-                nva_imagen = "hurt"
-                game_over = True
+        if personaje.colliderect(caja):
+            texto_colision = actualizar_texto_colision(1)
+            """if (nva_imagen != "hurt"):
+                nva_imagen = "hurt"  """
+            game_over = True
+            
+        elif personaje.colliderect(abeja):
+            texto_colision = actualizar_texto_colision(2)
+            """if (nva_imagen != "hurt"):
+                nva_imagen = "hurt"  """
+            game_over = True
         
         
         ### POST INPUT ###
