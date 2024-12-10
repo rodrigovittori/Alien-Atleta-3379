@@ -2,21 +2,16 @@
 import random
 
 """
-# [M5.L4 - Actividad #3: "Enemigos aleatorios"]
-# Objetivo: Llamar al próximo obstáculo/enemigo según un valor random
+# [M5.L4] - Actividad #4: "Nivel de dificultad"
+# Objetivo: Aumentar la velocidad de los enemigos cada vez que esquivemos efectivamente uno de ellos
 
 Modificamos el sistema de obstáculos para actualizar uno a la vez, que se determina de forma aleatoria
 
 Pasos:
-1º Importar el módulo random
-2º Crear la vble "prox_enemigo", que tomará un valor random entre 1 y 2
-   (xq sólo tenemos dos tipos de enemigos)
-3º Creamos una función que calcule el valor de nuestro próximo enemigo en forma aleatoria
-4º En update(dt) llamaremos a la función que actualiza el obstáculo/enemigo "activo",
-    hasta que salga de la pantalla, (luego reasignaremos ese valor random)
-5º Agregar a la función reiniciar_juego una condición para reestablecer el valor del prox_enemigo a spwanear
-
-Nota: Para evitar ver la caja cuando no se está moviendo modificamos su posición al inicializarla, resetearla y moverla
+1º Crear una nueva variable llamada "velocidad_enemigos"
+2º Modificar las funciones de movimiento para que los obstáculos/enemigos se desplazen a dicha velocidad
+3º Agregar una condición que aumente en uno la velocidad de los enemigos cada vez que esquivemos efectivamente uno de ellos
+4º Agregar una última función que maneje la actualización de los obstáculos
 
 """
 
@@ -62,6 +57,7 @@ game_over = False
 texto_colision = " "
 puntuacion = 0 # Cantidad de enemigos esquivados
 prox_enemigo = random.randint(1,2) # 1: Caja / 2: Abeja
+velocidad_enemigos = 5 # La velocidad (en px) a la que se mueve el personaje
 
 """  #####################
     # FUNCIONES PROPIAS #
@@ -87,23 +83,22 @@ def enemigo_al_azar():
 
 
 def actualizar_abeja():
-    global puntuacion, prox_enemigo
+    global puntuacion, prox_enemigo, velocidad_enemigos
 
     # To-Do: agregar "zig-zagueo" de la abeja
     
     # Posición
     if (abeja.x < (-int(abeja.width))):
         puntuacion += 1
+        velocidad_enemigos += 1
         abeja.x = WIDTH + 150
         prox_enemigo = enemigo_al_azar()
         
     else:
-        abeja.x -= 5 # mover la caja 5 px a la izquierda en cada frame
-        # Nota: Posibilidad de que los enemigos aceleren cada vez que respawnean
-        #       -> x.- vble global: velocidad_enemigos
+        abeja.x -= velocidad_enemigos
 
 def actualizar_caja():
-    global puntuacion, prox_enemigo
+    global puntuacion, prox_enemigo, velocidad_enemigos
 
     # To-Do: agregar "zig-zagueo" de la abeja
     
@@ -116,13 +111,21 @@ def actualizar_caja():
     # Posición
     if (caja.x < (int(caja.width/2))):
         puntuacion += 1
+        velocidad_enemigos += 1
         caja.x = WIDTH + 50
         prox_enemigo = enemigo_al_azar()
     else:
-        caja.x -= 5 # mover la caja 5 px a la izquierda en cada frame
-        # Nota: Posibilidad de que los enemigos aceleren cada vez que respawnean
-        #       -> x.- vble global: velocidad_enemigos
+        caja.x -= velocidad_enemigos
 
+def actualizar_enemigos():
+    # Movemos el enemigo activo actualmente
+
+    # Nota: actualizar cuando se agreguen tipos de enemigos
+    if (prox_enemigo == 1):
+        actualizar_caja()
+    elif (prox_enemigo == 2):
+        actualizar_abeja()
+    
 
 def actualizar_texto_colision(tipo_colision):
 
@@ -237,23 +240,12 @@ def update(dt): # Podemos traducir "update" como "actualizar", es decir, en ella
         if ((personaje.timer_agachado <= 0) and (personaje.esta_agachado)): 
             personaje.y = 240
             personaje.esta_agachado = False
-
-        
         
         ########################
 
-        # Actualizamos los enemigos
-        # Nota: creo que ésto después lo migramos a otra función
-        if (prox_enemigo == 1):
-            actualizar_caja()
-        elif (prox_enemigo == 2):
-            actualizar_abeja()
-            # Nota: actualizar cuando se agreguen tipos de enemigos
-   
+        actualizar_enemigos()
         mover_personaje()
-    
         detectar_colisiones()
-        
         
         ### POST INPUT ###
     
